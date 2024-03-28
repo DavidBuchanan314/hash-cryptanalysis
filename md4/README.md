@@ -6,7 +6,7 @@ I'm picking MD4 as a starting point because most of the conceptual details are t
 
 The basic ideas:
 
-A message is padded and split into 512-bit (64 byte) blocks (often denoted M0, M1, ...Mn).
+A message is padded and split into 512-bit blocks (64 bytes, 16 x 32-bit words) (often denoted M0, M1, ...Mn).
 
 The state (4 x 32-bit words) is updated through successive application of the "compression function", i.e.
 
