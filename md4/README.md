@@ -1,6 +1,6 @@
 # MD4
 
-I'm picking MD4 as a starting point because most of the conceptual details are the same as that of MD5 (and also, RIPEMD, SHA), but the attacks are generally much more efficient, meaning I can implement them in Python without worrying about performance.
+I'm picking MD4 as a starting point because most of the conceptual details are the same as that of MD5 (and also, RIPEMD, SHA), but the attacks are generally much cheaper, meaning I can implement them in Python without worrying about performance.
 
 `md4.py` includes a basic implementation of the MD4 algorithm.
 
