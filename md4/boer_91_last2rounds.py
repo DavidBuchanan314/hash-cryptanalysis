@@ -1,5 +1,7 @@
+import secrets
 from .md4 import *
 
+# this is the weakened version of MD4 that we'll be attacking
 def md4_compress_last2(A, B, C, D, X):
 	AA = A
 	BB = B
@@ -17,6 +19,69 @@ def md4_compress_last2(A, B, C, D, X):
 
 	return A, B, C, D
 
+N = 0x55555555
+
+# nb: the defintion the paper uses for "odd" and "even" bits is counterintuitive!!!
+def set_even_bits(n):
+	return n | N
+
+def clear_even_bits(n):
+	return n & ~N
+
+def collide():
+	# step 1
+
+	A0N_1 = clear_even_bits(secrets.randbits(32))
+	A0N_2 = set_even_bits(A0N_1)
+	B0N_1 = clear_even_bits(secrets.randbits(32))
+	B0N_2 = set_even_bits(B0N_1)
+	C0N_1 = clear_even_bits(secrets.randbits(32))
+	C0N_2 = set_even_bits(C0N_1)
+	D0N_1 = clear_even_bits(secrets.randbits(32))
+	D0N_2 = set_even_bits(D0N_1)
+
+	AN0_1 = set_even_bits(secrets.randbits(32))
+	AN0_2 = clear_even_bits(AN0_1)
+	BN0_1 = set_even_bits(secrets.randbits(32))
+	BN0_2 = clear_even_bits(BN0_1)
+	CN0_1 = set_even_bits(secrets.randbits(32))
+	CN0_2 = clear_even_bits(CN0_1)
+	DN0_1 = set_even_bits(secrets.randbits(32))
+	DN0_2 = clear_even_bits(DN0_1)
+
+
+	# step 2
+
+	X1_1 = secrets.randbits(32)
+	X2_1 = secrets.randbits(32)
+	X5_1 = secrets.randbits(32) # not used until step 5
+	X10_1 = secrets.randbits(32) # ditto
+	X13_1 = secrets.randbits(32)
+	X14_1 = secrets.randbits(32)
+
+	# apply eqn 13
+	A28 = rotl(AN0_1 + H(BN0_1, CN0_1, DN0_1) + X1_1 + E3, S31)
+	X1_2 = (rotr(A28, S31) - (AN0_2 + H(BN0_2, CN0_2, DN0_2) + E3)) & 0xffffffff
+
+	# apply eqn 5
+	A12 = rotl(A0N_1 + G(B0N_1, C0N_1, D0N_1) + X2_1 + E2, S21)
+	X2_2 = (rotr(A12, S21) - (A0N_2 + G(B0N_2, C0N_2, D0N_2) + E2)) & 0xffffffff
+
+	# apply eqn 4
+	B4 = (rotr(B0N_1, S24) - (G(C0N_1, D0N_1, A0N_1) + X13_1 + E2)) & 0xffffffff
+	X13_2 = (rotr(B0N_2, S24) - (B4 + G(C0N_2, D0N_2, A0N_2) + E2)) & 0xffffffff
+
+	# apply eqn 12
+	B20 = (rotr(BN0_1, S34) - (H(CN0_1, DN0_1, AN0_1) + X14_1 + E3)) & 0xffffffff
+	X14_2 = (rotr(BN0_2, S34) - (B20 + H(CN0_2, DN0_2, AN0_2) + E3)) & 0xffffffff
+
+
+	# step 3
+	# TODO...
+
+
+
+
 if __name__ == "__main__":
 	# sanity check: verify their example collision
 
@@ -33,3 +98,5 @@ if __name__ == "__main__":
 	h1 = pack_state(*md4_compress_last2(A0, B0, C0, D0, msg1))
 	h2 = pack_state(*md4_compress_last2(A0, B0, C0, D0, msg2))
 	assert(h1 == h2)
+
+	collide()

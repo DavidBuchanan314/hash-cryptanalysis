@@ -67,14 +67,21 @@ def H(X, Y, Z):
 def rotl(x, n):
 	return ((x << n) & 0xffffffff) | ((x & 0xffffffff) >> (32 - n))
 
+def rotr(x, n):
+	return ((x << (32 - n)) & 0xffffffff) | ((x & 0xffffffff) >> n)
+
 def FF(a, b, c, d, x, s):
 	return rotl(a + F(b, c, d) + x, s)
 
 def GG(a, b, c, d, x, s):
 	return rotl(a + G(b, c, d) + x + 0x5A827999, s)
 
+E2 = 0x5A827999
+
 def HH(a, b, c, d, x, s):
 	return rotl(a + H(b, c, d) + x + 0x6ED9EBA1, s)
+
+E3 = 0x6ED9EBA1
 
 sfn = [FF] * 16 + [GG] * 16 + [HH] * 16
 
