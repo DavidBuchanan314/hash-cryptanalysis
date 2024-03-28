@@ -48,20 +48,20 @@ Xk2 = [
 	 3,  7, 11, 15,
 ]
 Xk3 = [
-	 0,  4,  8, 12,
+	 0,  8,  4, 12,
 	 2, 10,  6, 14,
 	 1,  9,  5, 13,
 	 3, 11,  7, 15,
 ]
 Xk = Xk1 + Xk2 + Xk3
 
-def F(X,Y,Z):
+def F(X, Y, Z):
 	return (X & Y) | (~X & Z)
 
-def G(X,Y,Z):
+def G(X, Y, Z):
 	return (X & Y) | (X & Z) | (Y & Z)
 
-def H(X,Y,Z):
+def H(X, Y, Z):
 	return X ^ Y ^ Z
 
 def rotl(x, n):
@@ -133,8 +133,8 @@ MD4_STEP = [
 
 	# round 3
 	lambda a, b, c, d, X: (HH(a, b, c, d, X[ 0], S31), b, c, d),
-	lambda a, b, c, d, X: (a, b, c, HH(d, a, b, c, X[ 4], S32)),
-	lambda a, b, c, d, X: (a, b, HH(c, d, a, b, X[ 8], S33), d),
+	lambda a, b, c, d, X: (a, b, c, HH(d, a, b, c, X[ 8], S32)),
+	lambda a, b, c, d, X: (a, b, HH(c, d, a, b, X[ 4], S33), d),
 	lambda a, b, c, d, X: (a, HH(b, c, d, a, X[12], S34), c, d),
 
 	lambda a, b, c, d, X: (HH(a, b, c, d, X[ 2], S31), b, c, d),
@@ -204,8 +204,8 @@ def md4_block(A, B, C, D, X):
 
 	# round 3
 	A = HH(A, B, C, D, X[ 0],  3)
-	D = HH(D, A, B, C, X[ 4],  9)
-	C = HH(C, D, A, B, X[ 8], 11)
+	D = HH(D, A, B, C, X[ 8],  9)
+	C = HH(C, D, A, B, X[ 4], 11)
 	B = HH(B, C, D, A, X[12], 15)
 
 	A = HH(A, B, C, D, X[ 2],  3)
@@ -278,18 +278,26 @@ def md4(msg, blockfn=md4_block_stepped2):
 	padded = msg_pad(msg)
 	A, B, C, D = A0, B0, C0, D0
 
-	for M in struct.iter_unpack("<16I", padded):
+	for M in iter_blocks(padded):
 		A, B, C, D = blockfn(A, B, C, D, M)
 
-	h = struct.pack("<IIII", A, B, C, D)
+	h = pack_state(A, B, C, D)
 	return h
 
 
 if __name__ == "__main__":
-	h = md4(b"abc", blockfn=md4_block)
-	assert(h.hex() == "a448017aaf21d8525fc10ae87aa6729d")
-	h = md4(b"abc", blockfn=md4_block_stepped)
-	assert(h.hex() == "a448017aaf21d8525fc10ae87aa6729d")
-	h = md4(b"abc", blockfn=md4_block_stepped)
-	assert(h.hex() == "a448017aaf21d8525fc10ae87aa6729d")
-	print(h.hex())
+	TEST_VECTORS = [
+		(b"", "31d6cfe0d16ae931b73c59d7e0c089c0"),
+		(b"a", "bde52cb31de33e46245e05fbdbd6fb24"),
+		(b"abc", "a448017aaf21d8525fc10ae87aa6729d"),
+		(b"message digest", "d9130a8164549fe818874806e1c7014b"),
+		(b"abcdefghijklmnopqrstuvwxyz", "d79e1c308aa5bbcdeea8ed63df412da9"),
+		(b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", "043f8582f241db351ce627e153e7f0e4"),
+		(b"12345678901234567890123456789012345678901234567890123456789012345678901234567890", "e33b4ddc9c38f2199c3e7b164fcc0536"),
+	]
+
+	for msg, expected in TEST_VECTORS:
+		for blockfn in [md4_block, md4_block_stepped, md4_block_stepped2]:
+			res = md4(msg, blockfn=blockfn)
+			print(repr(msg), res.hex())
+			assert(res.hex() == expected)
