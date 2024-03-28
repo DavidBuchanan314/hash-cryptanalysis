@@ -268,6 +268,11 @@ def md4_block_stepped2(A, B, C, D, X):
 
 	return A, B, C, D
 
+def iter_blocks(padded: bytes):
+	return struct.iter_unpack("<16I", padded)
+
+def pack_state(a, b, c, d):
+	return struct.pack("<IIII", a, b, c, d)
 
 def md4(msg, blockfn=md4_block_stepped2):
 	padded = msg_pad(msg)

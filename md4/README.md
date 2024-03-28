@@ -24,4 +24,8 @@ The programmer-brain temptation is to think about these steps as imperative sequ
 
 https://link.springer.com/chapter/10.1007/3-540-46766-1_14
 
+Cleaner PDF: https://ftp.esat.kuleuven.be/cosic/bosselae/md4rnd23.pdf
+
 > In this paper it is shown that if the three round MD4 algorithm is stripped of its first round, it is possible to find for a given (initial) input value two different messages hashing to the same output.
+
+The attack is (will be...) implemented in [boer_91_last2rounds.py](./boer_91_last2rounds.py)
