@@ -8,16 +8,20 @@ def md4_compress_last2(A, B, C, D, X):
 	CC = C
 	DD = D
 
+	trace = []
 	for i in range(16 * 2):
 		#print(f"{i:>2}", hex(A), hex(B), hex(C), hex(D))
-		A, B, C, D = md4_step(A, B, C, D, X, 16 + i) # they call this an "elementary operation"
+		#A, B, C, D = md4_step(A, B, C, D, X, 16 + i) # they call this an "elementary operation"
+		A, B, C, D = MD4_STEP[16 + i](A, B, C, D, X)
+		trace.append([X[Xk[16 + i]], A, B, C, D])
+		#trace.append([X[Xk[16 + i]], [A, B, C, D][(-i)%4]]) # only record the word that changed
 
 	A = (A + AA) & 0xffffffff
 	B = (B + BB) & 0xffffffff
 	C = (C + CC) & 0xffffffff
 	D = (D + DD) & 0xffffffff
 
-	return A, B, C, D
+	return A, B, C, D, trace
 
 N = 0x55555555
 
@@ -80,7 +84,28 @@ def collide():
 	# TODO...
 
 
+def plot_traces(t1, t2):
+	from matplotlib import pyplot as plt
 
+	COLOURMAP = [
+		[(  0, 0, 0), (  0, 255,   0)], # black, green
+		[(255, 0, 0), (255, 255, 255)], # red, white
+	]
+	SPACER = (120, 120, 255)
+
+	pixels = []
+	for row1, row2 in zip(t1, t2):
+		pxrow = []
+		for word1, word2 in zip(row1, row2):
+			for i in range(32):
+				b1 = (word1 >> i) & 1
+				b2 = (word2 >> i) & 1
+				pxrow.append(COLOURMAP[b1][b2])
+			pxrow.append(SPACER)
+		pixels.append(pxrow)
+
+	plt.imshow(pixels)
+	plt.show()
 
 if __name__ == "__main__":
 	# sanity check: verify their example collision
@@ -95,8 +120,12 @@ if __name__ == "__main__":
 		75B5516B 2F97652B B512FF96 758F514D 9EA01345 64CEC401 85FF60F0 4089373B
 	"""))]
 
-	h1 = pack_state(*md4_compress_last2(A0, B0, C0, D0, msg1))
-	h2 = pack_state(*md4_compress_last2(A0, B0, C0, D0, msg2))
+	a1, b1, c1, d1, trace1 = md4_compress_last2(A0, B0, C0, D0, msg1)
+	h1 = pack_state(a1, b1, c1, d1)
+	a2, b2, c2, d2, trace2 = md4_compress_last2(A0, B0, C0, D0, msg2)
+	h2 = pack_state(a2, b2, c2, d2)
 	assert(h1 == h2)
+
+	plot_traces(trace1, trace2)
 
 	collide()
