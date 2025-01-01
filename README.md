@@ -6,6 +6,8 @@ If you want to follow along, start with [md4](./md4/)
 
 ## List of papers I think might be relevant:
 
+- ["Cryptanalysis of the Hash Functions MD4 and RIPEMD"](https://www.iacr.org/archive/eurocrypt2005/34940001/34940001.pdf), Xiaoyun Wang, Xuejia Lai, Dengguo Feng, Hui Chen, Xiuyuan Yu, Eurocrypt 2005
+
 - ["How to Break MD5 and Other Hash Functions"](https://iacr.org/archive/eurocrypt2005/34940019/34940019.pdf), Xiaoyun Wang and Hongbo Yu, Eurocrypt 2005
 
 - [A Study of the MD5 Attacks: Insights and Improvements](https://home.cs.colorado.edu/~jrblack/papers/md5e-full.pdf) - Black, Cochran, Highland, 2006
