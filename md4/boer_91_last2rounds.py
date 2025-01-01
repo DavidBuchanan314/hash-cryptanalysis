@@ -23,9 +23,10 @@ def md4_compress_last2(A, B, C, D, X):
 
 	return A, B, C, D, trace
 
-N = 0x55555555
+N = 0x55555555 # 0b01010101010101010101010101010101
 
 # nb: the defintion the paper uses for "odd" and "even" bits is counterintuitive!!!
+# wait, future me is less confused: index-0 is even, obviously
 def set_even_bits(n):
 	return n | N
 
